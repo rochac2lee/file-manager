@@ -116,15 +116,19 @@
     <v-navigation-drawer
       permanent
       width="280"
-      color="grey-lighten-4"
+      color="white"
+      elevation="1"
     >
-      <v-list density="compact" class="py-2">
+
+      <v-list density="comfortable" class="py-4">
         <!-- Navigation Items -->
         <v-list-item
           prepend-icon="mdi-folder"
           title="Arquivos"
           @click="navigateTo('/')"
-          class="mb-2"
+          class="nav-item"
+          :class="{ 'nav-item--active': isCurrentPage('/') }"
+          rounded="xl"
           color="primary"
         />
         
@@ -132,7 +136,9 @@
           prepend-icon="mdi-account-group"
           title="Usuários"
           @click="navigateTo('/users')"
-          class="mb-2"
+          class="nav-item"
+          :class="{ 'nav-item--active': isCurrentPage('/users') }"
+          rounded="xl"
           color="primary"
         />
         
@@ -140,7 +146,9 @@
           prepend-icon="mdi-shield-account"
           title="Permissões"
           @click="navigateTo('/permissions')"
-          class="mb-2"
+          class="nav-item"
+          :class="{ 'nav-item--active': isCurrentPage('/permissions') }"
+          rounded="xl"
           color="primary"
         />
         
@@ -148,7 +156,9 @@
           prepend-icon="mdi-history"
           title="Logs"
           @click="navigateTo('/activity-logs')"
-          class="mb-2"
+          class="nav-item"
+          :class="{ 'nav-item--active': isCurrentPage('/activity-logs') }"
+          rounded="xl"
           color="primary"
         />
         
@@ -156,46 +166,47 @@
           prepend-icon="mdi-delete"
           title="Lixeira"
           @click="navigateTo('/trash')"
-          class="mb-2"
+          class="nav-item"
+          :class="{ 'nav-item--active': isCurrentPage('/trash') }"
+          rounded="xl"
           color="primary"
         />
 
-        <v-divider class="my-4" />
+        <v-divider class="my-6 mx-4" />
 
-        <!-- Resource Usage -->
-        <v-list-subheader>Recursos</v-list-subheader>
-        
-        <v-list-item>
-          <template #prepend>
-            <v-icon color="primary">mdi-harddisk</v-icon>
-          </template>
-          <v-list-item-title>Espaço</v-list-item-title>
-          <v-list-item-subtitle>
+        <!-- Resource Usage Card -->
+        <v-card class="mx-4 mb-4" variant="outlined" elevation="0">
+          <v-card-text class="py-4">
+            <div class="d-flex align-center mb-3">
+              <v-icon color="primary" class="mr-2">mdi-harddisk</v-icon>
+              <span class="text-subtitle-2 font-weight-medium">Espaço em Disco</span>
+            </div>
+            
             <v-progress-linear
               :model-value="spaceUsage"
               color="primary"
-              height="6"
-              class="mt-1"
+              height="8"
+              rounded
+              class="mb-2"
             />
-            <div class="text-caption mt-1">{{ spaceUsed }} / {{ spaceTotal }}</div>
-          </v-list-item-subtitle>
-        </v-list-item>
+            
+            <div class="d-flex justify-space-between text-caption">
+              <span class="text-grey-darken-1">{{ spaceUsed }}</span>
+              <span class="text-grey-darken-1">{{ spaceTotal }}</span>
+            </div>
+          </v-card-text>
+        </v-card>
 
-
-        <v-divider class="my-4" />
+        <v-spacer />
 
         <!-- App Info -->
-        <v-list-item class="text-caption">
-          <v-list-item-subtitle>
-            ExpertSeg Drive v1.0.0
-          </v-list-item-subtitle>
-        </v-list-item>
-        
-        <v-list-item class="text-caption">
-          <v-list-item-subtitle>
-            Ajuda
-          </v-list-item-subtitle>
-        </v-list-item>
+        <div class="sidebar-footer px-4 pb-4">
+          <v-divider class="mb-4" />
+          <div class="text-center">
+            <p class="text-caption text-grey-darken-1 mb-1">ExpertSeg Drive</p>
+            <p class="text-caption text-grey">v1.0.0</p>
+          </div>
+        </div>
       </v-list>
     </v-navigation-drawer>
 
@@ -294,6 +305,14 @@ const getUserInitials = () => {
 const goToProfile = () => {
   // Implementar navegação para o perfil do usuário
   console.log('Ir para perfil do usuário')
+}
+
+const isCurrentPage = (path) => {
+  const currentPath = window.location.pathname
+  if (path === '/') {
+    return currentPath === '/' || currentPath === ''
+  }
+  return currentPath.startsWith(path)
 }
 </script>
 
@@ -406,6 +425,60 @@ const goToProfile = () => {
 /* Cor de fundo do conteúdo */
 .content-background {
   background-color: #f8f9fa !important;
+}
+
+/* Sidebar Modern Styling */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.sidebar-logo {
+  margin-right: 12px;
+}
+
+.sidebar-title h3 {
+  margin: 0;
+  color: white !important;
+}
+
+.sidebar-title p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.nav-item {
+  margin: 4px 16px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.nav-item:hover {
+  background-color: rgba(25, 118, 210, 0.08) !important;
+  transform: translateX(4px);
+}
+
+.nav-item--active {
+  background-color: rgba(25, 118, 210, 0.12) !important;
+  color: rgb(25, 118, 210) !important;
+  font-weight: 600;
+}
+
+.nav-item--active .v-icon {
+  color: rgb(25, 118, 210) !important;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+}
+
+/* Resource Usage Card */
+.v-card.v-card--variant-outlined {
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-radius: 16px !important;
 }
 
 /* Espaçamento entre botões */
