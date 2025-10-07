@@ -1,0 +1,25 @@
+FROM node:18-alpine
+
+# Instalar dependências do sistema
+RUN apk add --no-cache git
+
+# Definir diretório de trabalho
+WORKDIR /app
+
+# Copiar arquivos de dependências
+COPY package*.json ./
+
+# Instalar dependências
+RUN npm install --legacy-peer-deps
+
+# Copiar código fonte
+COPY . .
+
+# Copiar configuração do Vite simplificada
+COPY vite.config.frontend.js vite.config.js
+
+# Expor porta
+EXPOSE 3000
+
+# Comando para desenvolvimento com hot reload
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000"]

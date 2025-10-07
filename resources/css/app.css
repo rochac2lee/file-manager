@@ -1,0 +1,39 @@
+@import 'vuetify/styles';
+@import '@mdi/font/css/materialdesignicons.css';
+
+/* Estilos básicos da aplicação */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f2f3f6;
+}
+
+.v-main {
+    background-color: #f2f3f6;
+}
+
+/* Garantir que os ícones Material Design Icons sejam visíveis */
+.mdi {
+    font-family: "Material Design Icons" !important;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: "liga";
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Cor padrão para ícones */
+.v-icon {
+    color: #1976D2 !important;
+}
+
+/* Cor para botões de texto */
+.v-btn.v-btn--variant-text .v-icon {
+    color: #1976D2 !important;
+}

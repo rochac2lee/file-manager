@@ -1,0 +1,24 @@
+{
+    "$schema": "https://json.schemastore.org/package.json",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "vite build",
+        "dev": "vite --host 0.0.0.0 --port 3000"
+    },
+    "devDependencies": {
+        "axios": "^1.11.0",
+        "concurrently": "^9.0.1",
+        "laravel-vite-plugin": "^2.0.0",
+        "vite": "^4.5.0"
+    },
+    "dependencies": {
+        "@inertiajs/vue3": "^2.2.6",
+        "@mdi/font": "^7.4.47",
+        "@vitejs/plugin-vue": "^4.6.0",
+        "laravel-vite-plugin": "^2.0.0",
+        "vue": "^3.5.22",
+        "vue-cookies": "^1.8.6",
+        "vuetify": "^3.8.0"
+    }
+}
