@@ -355,15 +355,22 @@
       </v-card>
     </v-dialog>
 
-    <!-- Preview de imagem em tela cheia -->
-    <v-dialog v-model="imagePreview.open" fullscreen persistent>
-      <v-card>
-        <v-toolbar flat>
-          <v-btn icon @click="imagePreview.open=false"><v-icon>mdi-close</v-icon></v-btn>
-          <v-toolbar-title>{{ imagePreview.title }}</v-toolbar-title>
+    <!-- Preview de imagem -->
+    <v-dialog v-model="imagePreview.open" max-width="90vw" max-height="90vh" persistent>
+      <v-card class="image-preview-dialog" rounded="lg">
+        <v-toolbar color="primary" flat>
+          <v-toolbar-title class="text-white">{{ imagePreview.title }}</v-toolbar-title>
           <v-spacer />
+          <v-btn icon @click="imagePreview.open=false" color="white">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
         </v-toolbar>
-        <v-img :src="imagePreview.src" contain height="100vh" />
+        <v-img 
+          :src="imagePreview.src" 
+          contain 
+          max-height="70vh"
+          class="image-preview-content"
+        />
       </v-card>
     </v-dialog>
 
@@ -1373,5 +1380,19 @@ nextTick(() => {
   .file-item:hover {
     transform: none;
   }
+}
+
+/* Image Preview Dialog Styling */
+.image-preview-dialog {
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+.image-preview-dialog .v-toolbar {
+  border-radius: 16px 16px 0 0 !important;
+}
+
+.image-preview-content {
+  border-radius: 0 0 16px 16px !important;
 }
 </style>
