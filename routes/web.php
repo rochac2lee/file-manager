@@ -23,6 +23,9 @@ Route::middleware(['auth:web', 'inertia'])->group(function () {
     Route::get('/files', [InertiaFileManagerController::class, 'index'])->name('files.index');
     Route::post('/files/navigate', [InertiaFileManagerController::class, 'navigate'])->name('files.navigate');
     
+    // API para navegação instantânea
+    Route::get('/api/folders/{folderId}/contents', [InertiaFileManagerController::class, 'getFolderContents'])->name('api.folders.contents');
+    
     // Operações de arquivos
     Route::post('/files/upload', [InertiaFileManagerController::class, 'upload'])->name('files.upload');
     Route::patch('/files/{file}/rename', [InertiaFileManagerController::class, 'renameFile'])->name('files.rename');

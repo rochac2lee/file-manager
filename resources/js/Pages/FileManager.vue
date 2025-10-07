@@ -521,9 +521,9 @@ const tableItems = computed(() => {
     return itemFolderId === currentFolderId
   }
 
-  // Filtrar pastas pela pasta atual
-  const folderItems = props.folders
-    .filter(f => isSameFolder(f.parent_id, props.currentFolderId))
+  // Filtrar pastas pela pasta atual (usando dados locais)
+  const folderItems = localFolders.value
+    .filter(f => isSameFolder(f.parent_id, currentFolderId.value))
     .map(f => ({
       ...f, // ✅ Manter todos os campos originais do backend
       uid: `folder-${f.id}`,
@@ -534,9 +534,9 @@ const tableItems = computed(() => {
       isProcessing: false,
     }))
 
-  // Filtrar arquivos pela pasta atual
-  const fileItems = props.files
-    .filter(f => isSameFolder(f.folder_id, props.currentFolderId))
+  // Filtrar arquivos pela pasta atual (usando dados locais)
+  const fileItems = localFiles.value
+    .filter(f => isSameFolder(f.folder_id, currentFolderId.value))
     .map(f => ({
       ...f, // ✅ Manter todos os campos originais do backend
       uid: `file-${f.id}`,
@@ -554,22 +554,39 @@ const hasItems = computed(() => tableItems.value.length > 0)
 
 const breadcrumbItems = computed(() => {
   const items = [
-    { title: 'Início', value: null as number | null, disabled: props.currentFolderId === null || props.currentFolderId === undefined }
+    { title: 'Início', value: null as number | null, disabled: currentFolderId.value === null || currentFolderId.value === undefined }
   ]
 
-  // Verificar se currentPath existe e é um array
-  if (props.currentPath && Array.isArray(props.currentPath)) {
-    props.currentPath.forEach(folder => {
-      items.push({
-        title: folder.name,
-        value: folder.id as number | null,
-        disabled: props.currentFolderId === folder.id
+  // Construir breadcrumb baseado na pasta atual
+  if (currentFolderId.value) {
+    const currentFolder = localFolders.value.find(f => f.id === currentFolderId.value)
+    if (currentFolder) {
+      const path = buildBreadcrumbPath(currentFolder)
+      path.forEach(folder => {
+        items.push({
+          title: folder.name,
+          value: folder.id as number | null,
+          disabled: currentFolderId.value === folder.id
+        })
       })
-    })
+    }
   }
 
   return items
 })
+
+// Função para construir caminho do breadcrumb
+const buildBreadcrumbPath = (folder: any): any[] => {
+  const path = []
+  let current = folder
+  
+  while (current) {
+    path.unshift(current)
+    current = localFolders.value.find(f => f.id === current.parent_id)
+  }
+  
+  return path
+}
 
 const handleFileUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement
@@ -691,21 +708,53 @@ const getFolderPath = (folderId: number | null | undefined): string => {
   return buildPath(folder)
 }
 
+// Estado local para navegação instantânea
+const currentFolderId = ref<number | null>(props.currentFolderId || null)
+const localFolders = ref([...props.folders])
+const localFiles = ref([...props.files])
+
 const navigateToFolder = async (folderId: number | null | undefined) => {
-  if (!folderId) {
-    // Navegar para a raiz
-    router.get('/', {}, {
-      preserveState: true,
-      preserveScroll: true
-    })
-    return
-  }
+  // Navegação instantânea - atualiza estado local imediatamente
+  currentFolderId.value = folderId
   
-  const folderPath = getFolderPath(folderId)
-  router.get(`/${folderPath}`, {}, {
-    preserveState: true,
-    preserveScroll: true
-  })
+  // Atualizar URL sem recarregar a página
+  const folderPath = folderId ? getFolderPath(folderId) : ''
+  const newUrl = folderId ? `/${folderPath}` : '/'
+  
+  // Usar history API para navegação instantânea
+  window.history.pushState({}, '', newUrl)
+  
+  // Carregar dados da pasta em background (se necessário)
+  if (folderId && !hasFolderData(folderId)) {
+    loadFolderData(folderId)
+  }
+}
+
+// Verificar se já temos dados da pasta
+const hasFolderData = (folderId: number) => {
+  return localFolders.value.some(f => f.parent_id === folderId) || 
+         localFiles.value.some(f => f.folder_id === folderId)
+}
+
+// Carregar dados da pasta em background
+const loadFolderData = async (folderId: number) => {
+  try {
+    const response = await fetch(`/api/folders/${folderId}/contents`, {
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+      }
+    })
+    
+    if (response.ok) {
+      const data = await response.json()
+      // Adicionar novos dados ao cache local
+      localFolders.value.push(...data.folders)
+      localFiles.value.push(...data.files)
+    }
+  } catch (error) {
+    console.error('Erro ao carregar dados da pasta:', error)
+  }
 }
 
 const onToggleShare = async (item: any) => {

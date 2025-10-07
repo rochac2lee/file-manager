@@ -661,6 +661,24 @@ class InertiaFileManagerController extends Controller
     }
 
     /**
+     * API para obter conteúdo de uma pasta (para navegação instantânea)
+     */
+    public function getFolderContents(Request $request, $folderId)
+    {
+        $user = $request->user();
+        
+        // Obter dados da pasta
+        $folderData = $this->getFolderData($user, $folderId);
+        
+        return response()->json([
+            'folders' => $folderData['folders'],
+            'files' => $folderData['files'],
+            'currentPath' => $folderData['currentPath'],
+            'breadcrumbs' => $folderData['breadcrumbs'],
+        ]);
+    }
+
+    /**
      * Limpar cache
      */
     private function clearCache($user, $folderId = null): void
