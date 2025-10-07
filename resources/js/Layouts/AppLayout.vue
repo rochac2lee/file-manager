@@ -288,7 +288,16 @@ const uploadFile = () => {
 }
 
 const navigateTo = (url) => {
-  router.visit(url)
+  // Navegação instantânea para a rota raiz (Arquivos)
+  if (url === '/') {
+    // Emitir evento para o FileManager fazer navegação instantânea
+    window.dispatchEvent(new CustomEvent('navigateToRoot'))
+    // Atualizar URL sem recarregar
+    window.history.pushState({}, '', '/')
+  } else {
+    // Para outras rotas, usar navegação normal
+    router.visit(url)
+  }
 }
 
 const toggleViewMode = () => {

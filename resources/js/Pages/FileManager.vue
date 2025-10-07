@@ -425,7 +425,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, watch, onMounted } from 'vue'
+import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '../Layouts/AppLayout.vue'
 import VueCookies from 'vue-cookies'
@@ -719,6 +719,19 @@ const getFolderPath = (folderId: number | null | undefined): string => {
 const currentFolderId = ref<number | null>(props.currentFolderId || null)
 const localFolders = ref([...props.folders])
 const localFiles = ref([...props.files])
+
+// Listener para navegação instantânea do sidebar
+onMounted(() => {
+  window.addEventListener('navigateToRoot', () => {
+    navigateToFolder(null)
+  })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('navigateToRoot', () => {
+    navigateToFolder(null)
+  })
+})
 
 const navigateToFolder = async (folderId: number | null | undefined) => {
   // Navegação instantânea - atualiza estado local imediatamente
