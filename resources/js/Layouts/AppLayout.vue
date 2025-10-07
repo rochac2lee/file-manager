@@ -11,50 +11,8 @@
 
         <v-spacer />
 
-        <!-- Header Actions -->
-        <div class="d-flex align-center header-actions">
-          <!-- Grid/Lista Toggle -->
-          <v-btn 
-            variant="outlined"
-            size="small"
-            color="primary"
-            @click="toggleViewMode"
-            :title="viewMode === 'grid' ? 'Visualização em Lista' : 'Visualização em Grid'"
-            class="modern-btn mr-3"
-          >
-            <v-icon start size="18">
-              {{ viewMode === 'grid' ? 'mdi-view-list' : 'mdi-view-grid' }}
-            </v-icon>
-            {{ viewMode === 'grid' ? 'Lista' : 'Grid' }}
-          </v-btn>
-          
-          <!-- Nova Pasta -->
-          <v-btn 
-            variant="outlined"
-            size="small"
-            color="primary"
-            @click="createFolder"
-            title="Nova Pasta"
-            class="modern-btn mr-3"
-          >
-            <v-icon start size="18">mdi-folder-plus</v-icon>
-            Nova Pasta
-          </v-btn>
-          
-          <!-- Upload -->
-          <v-btn 
-            variant="outlined"
-            size="small"
-            color="primary"
-            @click="uploadFile"
-            title="Upload de Arquivo"
-            class="modern-btn mr-3"
-          >
-            <v-icon start size="18">mdi-upload</v-icon>
-            Upload
-          </v-btn>
-
-          <!-- User Menu -->
+        <!-- User Menu -->
+        <div class="d-flex align-center">
           <v-menu>
             <template #activator="{ props }">
               <div 
@@ -240,7 +198,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { router } from '@inertiajs/vue3'
 
 const props = defineProps({
@@ -288,16 +246,9 @@ const uploadFile = () => {
 }
 
 const navigateTo = (url) => {
-  // Navegação instantânea para a rota raiz (Arquivos)
-  if (url === '/') {
-    // Emitir evento para o FileManager fazer navegação instantânea
-    window.dispatchEvent(new CustomEvent('navigateToRoot'))
-    // Atualizar URL sem recarregar
-    window.history.pushState({}, '', '/')
-  } else {
-    // Para outras rotas, usar navegação normal
-    router.visit(url)
-  }
+  // Usar navegação normal para todas as rotas do sidebar
+  // A navegação instantânea é mantida apenas para duplo clique em pastas
+  router.visit(url)
 }
 
 const toggleViewMode = () => {
@@ -323,6 +274,7 @@ const isCurrentPage = (path) => {
   }
   return currentPath.startsWith(path)
 }
+
 </script>
 
 <style scoped>
@@ -532,4 +484,5 @@ const isCurrentPage = (path) => {
     font-size: 0.875rem !important;
   }
 }
+
 </style>

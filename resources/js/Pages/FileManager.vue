@@ -48,19 +48,44 @@
           
           <v-spacer />
           
-          <!-- Search -->
-          <v-text-field
-            v-model="searchQuery"
-            prepend-inner-icon="mdi-magnify"
-            placeholder="Buscar arquivos..."
-            variant="outlined"
-            density="compact"
-            hide-details
-            class="mr-4 modern-search"
-            style="max-width: 320px;"
-            clearable
-            rounded="lg"
-          />
+          <!-- Search and Actions -->
+          <div class="d-flex align-center">
+            <v-text-field
+              v-model="searchQuery"
+              prepend-inner-icon="mdi-magnify"
+              placeholder="Buscar arquivos..."
+              variant="outlined"
+              density="compact"
+              hide-details
+              class="mr-3 modern-search"
+              clearable
+              rounded="lg"
+            />
+            
+            <!-- Nova Pasta -->
+            <v-btn 
+              variant="outlined"
+              color="primary"
+              @click="createFolder"
+              title="Nova Pasta"
+              class="modern-btn mr-2"
+            >
+              <v-icon start size="18">mdi-folder-plus</v-icon>
+              Nova Pasta
+            </v-btn>
+            
+            <!-- Upload -->
+            <v-btn 
+              variant="outlined"
+              color="primary"
+              @click="uploadFile"
+              title="Enviar Arquivos"
+              class="modern-btn mr-2"
+            >
+              <v-icon start size="18">mdi-upload</v-icon>
+              Enviar Arquivos
+            </v-btn>
+          </div>
           
           <!-- Selection actions -->
           <template v-if="selectedItems.length > 0">
@@ -632,6 +657,20 @@ const createFolder = async () => {
   }
 }
 
+const toggleViewMode = () => {
+  viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
+  // Salvar preferência usando vue-cookies
+  VueCookies.set('viewMode', viewMode.value, '30d')
+}
+
+const uploadFile = () => {
+  // Trigger file input click
+  const fileInput = document.getElementById('file-input') as HTMLInputElement
+  if (fileInput) {
+    fileInput.click()
+  }
+}
+
 const openRename = (item: any) => {
   renameTarget.value = { type: item.type, id: item.id }
   renameValue.value = item.name
@@ -720,21 +759,23 @@ const currentFolderId = ref<number | null>(props.currentFolderId || null)
 const localFolders = ref([...props.folders])
 const localFiles = ref([...props.files])
 
-// Listener para navegação instantânea do sidebar
-onMounted(() => {
-  window.addEventListener('navigateToRoot', () => {
-    navigateToFolder(null)
-  })
+// Navegação instantânea mantida apenas para duplo clique em pastas
+
+// Watchers simplificados para performance
+watch(() => props.folders, (newFolders) => {
+  localFolders.value = [...newFolders]
 })
 
-onUnmounted(() => {
-  window.removeEventListener('navigateToRoot', () => {
-    navigateToFolder(null)
-  })
+watch(() => props.files, (newFiles) => {
+  localFiles.value = [...newFiles]
+})
+
+watch(() => props.currentFolderId, (newFolderId) => {
+  currentFolderId.value = newFolderId
 })
 
 const navigateToFolder = async (folderId: number | null | undefined) => {
-  // Navegação instantânea - atualiza estado local imediatamente
+  // Navegação instantânea simplificada
   currentFolderId.value = folderId
   
   // Atualizar URL sem recarregar a página
@@ -743,39 +784,8 @@ const navigateToFolder = async (folderId: number | null | undefined) => {
   
   // Usar history API para navegação instantânea
   window.history.pushState({}, '', newUrl)
-  
-  // Carregar dados da pasta em background (se necessário)
-  if (folderId && !hasFolderData(folderId)) {
-    loadFolderData(folderId)
-  }
 }
 
-// Verificar se já temos dados da pasta
-const hasFolderData = (folderId: number) => {
-  return localFolders.value.some(f => f.parent_id === folderId) || 
-         localFiles.value.some(f => f.folder_id === folderId)
-}
-
-// Carregar dados da pasta em background
-const loadFolderData = async (folderId: number) => {
-  try {
-    const response = await fetch(`/api/folders/${folderId}/contents`, {
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-      }
-    })
-    
-    if (response.ok) {
-      const data = await response.json()
-      // Adicionar novos dados ao cache local
-      localFolders.value.push(...data.folders)
-      localFiles.value.push(...data.files)
-    }
-  } catch (error) {
-    console.error('Erro ao carregar dados da pasta:', error)
-  }
-}
 
 const onToggleShare = async (item: any) => {
   // Placeholder para funcionalidade de compartilhamento
