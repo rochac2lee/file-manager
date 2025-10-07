@@ -664,10 +664,9 @@ const toggleViewMode = () => {
 }
 
 const uploadFile = () => {
-  // Trigger file input click
-  const fileInput = document.getElementById('file-input') as HTMLInputElement
-  if (fileInput) {
-    fileInput.click()
+  // Trigger file input click usando ref
+  if (fileInput.value) {
+    fileInput.value.click()
   }
 }
 
