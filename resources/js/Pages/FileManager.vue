@@ -775,8 +775,14 @@ watch(() => props.currentFolderId, (newFolderId) => {
 })
 
 const navigateToFolder = async (folderId: number | null | undefined) => {
-  // Navegação instantânea simplificada
+  // Navegação instantânea
   currentFolderId.value = folderId
+  
+  // Se navegando para root, atualizar dados locais com props
+  if (folderId === null || folderId === undefined) {
+    localFolders.value = [...props.folders]
+    localFiles.value = [...props.files]
+  }
   
   // Atualizar URL sem recarregar a página
   const folderPath = folderId ? getFolderPath(folderId) : ''

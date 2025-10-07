@@ -246,9 +246,17 @@ const uploadFile = () => {
 }
 
 const navigateTo = (url) => {
-  // Usar navegação normal para todas as rotas do sidebar
-  // A navegação instantânea é mantida apenas para duplo clique em pastas
-  router.visit(url)
+  // Para a rota raiz (Arquivos), forçar uma navegação limpa
+  if (url === '/') {
+    router.visit('/', { 
+      replace: true,
+      preserveState: false,
+      preserveScroll: false 
+    })
+  } else {
+    // Para outras rotas, usar navegação normal
+    router.visit(url)
+  }
 }
 
 const toggleViewMode = () => {
