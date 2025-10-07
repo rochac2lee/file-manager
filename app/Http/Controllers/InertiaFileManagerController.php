@@ -365,15 +365,13 @@ class InertiaFileManagerController extends Controller
                 ->orderByDesc('updated_at')
                 ->get()
                 ->map(function ($file) {
-                    $fileUrl = url('/storage/' . rawurlencode($file->path));
-                    \Log::info('Gerando URL para arquivo:', [
-                        'id' => $file->id,
-                        'name' => $file->name,
-                        'path' => $file->path,
-                        'url' => $fileUrl
-                    ]);
+                    // Codificar apenas o nome do arquivo, não o caminho completo
+                    $pathParts = explode('/', $file->path);
+                    $encodedParts = array_map('rawurlencode', $pathParts);
+                    $encodedPath = implode('/', $encodedParts);
+                    $fileUrl = url('/storage/' . $encodedPath);
                     
-                    $fileData = [
+                    return [
                         'id' => $file->id,
                         'name' => $file->name,
                         'original_name' => $file->original_name,
@@ -388,10 +386,6 @@ class InertiaFileManagerController extends Controller
                         'created_at' => $file->created_at,
                         'updated_at' => $file->updated_at,
                     ];
-                    
-                    \Log::info('Dados do arquivo sendo enviados:', $fileData);
-                    
-                    return $fileData;
                 });
 
             // Construir caminho atual
