@@ -275,7 +275,6 @@
               :alt="item.name"
               class="image-thumbnail"
               @error="handleImageError($event, item)"
-              @load="console.log('Imagem carregada:', item.name, getImageUrl(item))"
               />
             </div>
             <div v-else-if="isDocumentFile(item)" class="document-preview">
@@ -364,7 +363,7 @@
           <v-toolbar-title>{{ imagePreview.title }}</v-toolbar-title>
           <v-spacer />
         </v-toolbar>
-        <v-img :src="imagePreview.src" cover height="100vh" />
+        <v-img :src="imagePreview.src" contain height="100vh" />
       </v-card>
     </v-dialog>
 
@@ -526,8 +525,8 @@ const tableItems = computed(() => {
   const folderItems = props.folders
     .filter(f => isSameFolder(f.parent_id, props.currentFolderId))
     .map(f => ({
+      ...f, // ✅ Manter todos os campos originais do backend
       uid: `folder-${f.id}`,
-      id: f.id,
       type: 'folder',
       name: f.name,
       formatted_size: '-',
@@ -539,8 +538,8 @@ const tableItems = computed(() => {
   const fileItems = props.files
     .filter(f => isSameFolder(f.folder_id, props.currentFolderId))
     .map(f => ({
+      ...f, // ✅ Manter todos os campos originais do backend
       uid: `file-${f.id}`,
-      id: f.id,
       type: 'file',
       name: f.original_name,
       formatted_size: f.formatted_size,
@@ -870,18 +869,7 @@ const isVideoFile = (item: any) => {
 
 const isImageFile = (item: any) => {
   const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.svg']
-  const isImage = imageExtensions.some(ext => item.name.toLowerCase().endsWith(ext))
-  if (isImage) {
-    console.log('=== DEBUG IMAGEM ===')
-    console.log('Arquivo detectado como imagem:', item.name)
-    console.log('Dados completos do item:', item)
-    console.log('URL:', item.url)
-    console.log('Path:', item.path)
-    console.log('Tipo do item:', typeof item)
-    console.log('Keys do item:', Object.keys(item))
-    console.log('==================')
-  }
-  return isImage
+  return imageExtensions.some(ext => item.name.toLowerCase().endsWith(ext))
 }
 
 const isDocumentFile = (item: any) => {
@@ -897,7 +885,10 @@ const getImageUrl = (item: any) => {
   
   // Se tem path, construir URL
   if (item.path) {
-    const encodedPath = encodeURIComponent(item.path)
+    // Codificar apenas as partes do caminho, não o caminho completo
+    const pathParts = item.path.split('/')
+    const encodedParts = pathParts.map(part => encodeURIComponent(part))
+    const encodedPath = encodedParts.join('/')
     return `http://localhost:8000/storage/${encodedPath}`
   }
   
